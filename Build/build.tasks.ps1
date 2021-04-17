@@ -19,7 +19,7 @@ Enter-Build {
 }
 
 # Synopsis: Alias Task for Build
-Add-BuildTask Build Clean, BuildModule
+Add-BuildTask Build Clean, BuildModule, CreateModuleArchive
 
 # Synopsis: Clean up the target build directory
 Add-BuildTask Clean {
@@ -113,5 +113,44 @@ Add-BuildTask CreateModuleArchive {
     if (Test-Path $archivePath) { Remove-Item -Path $archivePath -Force -ErrorAction Stop }
 
     Get-ChildItem -Path $prjBuildOutputPath | Compress-Archive -DestinationPath $archivePath -CompressionLevel Optimal
+
+    if ($ENV:GITHUB_ACTIONS) {
+        "::set-output name=prjArchivePath::$archivePath"
+    }
+
+}
+
+# Synopsis: Creates an zip file for the module
+Add-BuildTask SetEnvironment {
+
+    Get-ChildItem -Path $prjBuildDependenciesPath -Attributes "directory" | ForEach-Object {
+
+        $module = $_.BaseName
+        $modulePath = Join-Path -Path $prjBuildDependenciesPath -ChildPath $module
+
+        # Clear any modules with already loaded
+        Get-Module -Name $module | Remove-Module -Force
+
+        $import = Import-Module $modulePath -PassThru -Global
+
+        "Imported '$module' version '$($import.Version)'"
+
+    }
+
+    if ($ENV:GITHUB_ACTIONS) {
+
+        # Git Version Variables
+        $gitVersion = dotnet-gitversion | ConvertFrom-Json
+
+        "::set-output name=gvFullSemVer::$($gitVersion.FullSemVer)"
+        "::set-output name=gvSemVer::$($gitVersion.SemVer)"
+        "::set-output name=gvMajorMinorPatch::$($gitVersion.MajorMinorPatch)"
+        "::set-output name=gvNuGetVersionV2::$($gitVersion.NuGetVersionV2)"
+
+        # Module Variables
+        "::set-output name=prjBuildOutput::$prjBuildOutputPath"
+        "::set-output name=prjTestResultPath::$prjTestResultPath"
+        "::set-output name=prjCodeCoveragePath::$prjCodeCoveragePath"
+    }
 
 }
