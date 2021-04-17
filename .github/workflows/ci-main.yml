@@ -1,0 +1,49 @@
+name: CI-MAIN
+
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+jobs:
+  build:
+    name: Module Build
+    runs-on: ubuntu-latest
+    steps:
+      - if: always()
+        name: Get Debug Status
+        id: debugStatus
+        run: |
+          echo '::set-output name=runnerDebug::${{secrets.ACTIONS_RUNNER_DEBUG}}'
+          echo '::set-output name=stepDebug::${{secrets.ACTIONS_STEP_DEBUG}}'
+          
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - name: Install GitVersion
+        shell: pwsh
+        run:
+          dotnet tool install --global GitVersion.Tool 
+
+      - if: steps.debugStatus.outputs.stepDebug
+        name: Environment Information
+        shell: pwsh
+        run: |
+          "::group::Powershell Modules"
+          ($ENV:PSModulePath).split([io.path]::pathseparator) | where {Test-Path $_} | Get-ChildItem
+          "::endgroup"
+
+          "::group::Variables"
+          Get-Variable | select name,value | Out-String
+          "::endgroup"
+
+          "::group::Environment"
+          dir env: | Out-String
+          "::endgroup"
