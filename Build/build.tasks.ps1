@@ -116,6 +116,7 @@ Add-BuildTask CreateModuleArchive {
 
     if ($ENV:GITHUB_ACTIONS) {
         "::set-output name=prjArchivePath::$archivePath"
+        "::set-output name=prjArchiveName::$archiveName"
     }
 
 }

@@ -9,29 +9,35 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  
+
 jobs:
   build:
     name: Module Build
     runs-on: ubuntu-latest
     steps:
-  
+
       - name: Get Debug Status
         id: debugStatus
         run: |
           echo '::set-output name=runnerDebug::${{secrets.ACTIONS_RUNNER_DEBUG}}'
           echo '::set-output name=stepDebug::${{secrets.ACTIONS_STEP_DEBUG}}'
-          
+
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          
+
       - name: Install Dependencies
         shell: pwsh
         run: |
-          dotnet tool install --global GitVersion.Tool 
+          dotnet tool install --global GitVersion.Tool
           .\build.ps1 -InstallDependencies
+
+      - name: Set Environment Variables
+        id: SetEnvVariables
+        shell: pwsh
+        run: |
+          .\build.ps1 -Task SetEnvironment
 
       - if: steps.debugStatus.outputs.stepDebug
         name: Environment Information
@@ -48,3 +54,15 @@ jobs:
           "::group::Environment"
           dir env: | Out-String
           "::endgroup"
+
+      - name: Build Module
+        id: build
+        shell: pwsh
+        run: |
+          .\build.ps1 -Task Build
+
+      - name: Upload Module Build Artifact
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: ${{ steps.build.outputs.prjArchiveName }}
+          path: ${{ steps.build.outputs.prjArchivePath }}
