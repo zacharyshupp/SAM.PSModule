@@ -2,14 +2,12 @@ mode: ContinuousDeployment
 branches:
   master:
     tag: beta
-    increment: Patch
-    prevent-increment-of-merged-branch-version: true
-    track-merge-target: false
-    is-release-branch: true
   release:
     tag: rc
   pull-request:
     tag: pr
+  feature:
+    tag: feat
 
 #Custom commit messages to support Conventional Commit and DevMoji syntax
 
