@@ -15,7 +15,13 @@ jobs:
     name: Module Build
     runs-on: ubuntu-latest
     steps:
-
+  
+      - name: Get Debug Status
+        id: debugStatus
+        run: |
+          echo '::set-output name=runnerDebug::${{secrets.ACTIONS_RUNNER_DEBUG}}'
+          echo '::set-output name=stepDebug::${{secrets.ACTIONS_STEP_DEBUG}}'
+          
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
@@ -27,7 +33,8 @@ jobs:
           dotnet tool install --global GitVersion.Tool 
           .\build.ps1 -InstallDependencies
 
-      - name: Environment Information
+      - if: steps.debugStatus.outputs.stepDebug
+        name: Environment Information
         shell: pwsh
         run: |
           "::group::Powershell Modules"
