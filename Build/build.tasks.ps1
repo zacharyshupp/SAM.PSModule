@@ -149,6 +149,7 @@ Add-BuildTask SetEnvironment {
         "::set-output name=gvNuGetVersionV2::$($gitVersion.NuGetVersionV2)"
 
         # Module Variables
+        "::set-output name=prjModulePath::$mdlPath"
         "::set-output name=prjBuildOutput::$prjBuildOutputPath"
         "::set-output name=prjTestResultPath::$prjTestResultPath"
         "::set-output name=prjCodeCoveragePath::$prjCodeCoveragePath"
