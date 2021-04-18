@@ -71,11 +71,13 @@ $prjBuildDependenciesPath = Join-Path -Path $PSScriptRoot -ChildPath "BuildDepen
 $prjDocsPath = Join-Path -Path $PSScriptRoot -ChildPath "Docs"
 $prjSourcePath = Join-Path -Path $PSScriptRoot -ChildPath $moduleParams.ModuleName
 $prjTestPath = Join-Path -Path $PSScriptRoot -ChildPath "Tests"
+$prjDotNetPath = Join-Path -Path $PSScriptRoot -ChildPath ".config"
 
 # Project Files
 $prjBuildTaskPath = Join-Path -Path $prjBuildPath -ChildPath "build.tasks.ps1"
 $prjTestResultPath = Join-Path -Path $prjBuildOutputPath -ChildPath "TestResults.xml"
 $prjCodeCoveragePath = Join-Path -Path $prjBuildOutputPath -ChildPath "CodeCoverage.xml"
+$prjDotNetConfigPath = Join-Path -Path $prjDotNetPath -ChildPath "dotnet-tools.json"
 
 # Module Build Variables
 $mdlPath = Join-Path -Path $prjBuildOutputPath -ChildPath $moduleParams.ModuleName
@@ -123,6 +125,9 @@ if ($InstallDependencies) {
 	if ($gallery -and $gallery.InstallationPolicy -eq "Untrusted") {
 		Set-PSRepository -Name $GalleryRepository -InstallationPolicy Untrusted
 	}
+
+	# Restore DotNet Tools Restore
+	if(Test-Path $prjDotNetConfigPath){dotnet tool restore}
 
 }
 
