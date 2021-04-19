@@ -1,3 +1,4 @@
+# [InvokeBuild Configuration] -------------------------------------------------------------------------------------
 
 Set-BuildHeader {
 	param($Path)
@@ -9,33 +10,26 @@ Set-BuildHeader {
 # Define footers similar to default but change the color to DarkGray.
 Set-BuildFooter {
 	param($Path)
-    Write-Build Green ('=' * 79)
+    Write-Build Green ('-' * 79)
 	Write-Build DarkGray "Done $Path, $($Task.Elapsed)"
 }
 
 # Synopsis: Runs before any task
-Enter-Build {
-	"Entering Build process"
-}
+Enter-Build { "$($moduleParams.ModuleName) Build" }
+
+# [Tasks] ---------------------------------------------------------------------------------------------------------
 
 # Synopsis: Alias Task for Build
-Add-BuildTask Build Clean, BuildModule, CreateModuleArchive
+Add-BuildTask Build Clean, BuildModule
 
-# Synopsis: Clean up the target build directory
-Add-BuildTask Clean {
-
-	if ($(Test-Path -Path $prjBuildOutputPath) -eq $true) { Remove-Item –Path $prjBuildOutputPath –Recurse -Force }
-
-}
-
-# Synopsis: Build Module
+# Synopsis: Build PowerShell Module
 Add-BuildTask BuildModule {
 
 	$prjSrcPublicFunctionsPath = Join-Path -Path $prjSourcePath -ChildPath "Public"
 	$prjSrcPrivateFunctionsPath = Join-Path -Path $prjSourcePath -ChildPath "Private"
 
 	# Get Module Version from GitVersion
-	$gitVersion = dotnet-gitversion | ConvertFrom-Json
+	$gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
 
     # Create Module Buildoutput Directory
     New-Item -Path $mdlPath -ItemType Directory -Force | Out-Null
@@ -102,6 +96,13 @@ Add-BuildTask BuildModule {
 
 }
 
+# Synopsis: Clean up the target build directory
+Add-BuildTask Clean {
+
+	if ($(Test-Path -Path $prjBuildOutputPath) -eq $true) { Remove-Item –Path $prjBuildOutputPath –Recurse -Force }
+
+}
+
 # Synopsis: Creates an zip file for the module
 Add-BuildTask CreateModuleArchive {
 
@@ -141,7 +142,7 @@ Add-BuildTask SetEnvironment {
     if ($ENV:GITHUB_ACTIONS) {
 
         # Git Version Variables
-        $gitVersion = dotnet-gitversion | ConvertFrom-Json
+        $gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
 
         "::set-output name=gvFullSemVer::$($gitVersion.FullSemVer)"
         "::set-output name=gvSemVer::$($gitVersion.SemVer)"
@@ -154,5 +155,14 @@ Add-BuildTask SetEnvironment {
         "::set-output name=prjTestResultPath::$prjTestResultPath"
         "::set-output name=prjCodeCoveragePath::$prjCodeCoveragePath"
     }
+
+}
+
+# Synopsis: Sets the PreRelease value
+Add-BuildTask SetPreReleaseFlag {
+
+    $gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
+
+    Update-ModuleManifest -Path $mdlPSD1Path -Prerelease $gitVersion.NuGetPreReleaseTagV2
 
 }

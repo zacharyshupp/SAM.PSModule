@@ -14,8 +14,8 @@
 
 [CmdletBinding()]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-    'PSUseDeclaredVarsMoreThanAssignments', '',
-    Justification = 'Several Parameters are used in the .\build\module.tasks.ps1 file.'
+	'PSUseDeclaredVarsMoreThanAssignments', '',
+	Justification = 'Several Parameters are used in the .\build\module.tasks.ps1 file.'
 )]
 param (
 
@@ -48,8 +48,9 @@ if ($PSEdition -eq 'Desktop') {
 # [Declarations] --------------------------------------------------------------------------------------------------
 
 $requiredModules = @{
-	Pester      = 'Latest'
-	InvokeBuild = 'Latest'
+	Pester              = 'Latest'
+	InvokeBuild         = 'Latest'
+	PowershellForGithub = 'Latest'
 }
 
 $moduleParams = @{
@@ -103,23 +104,23 @@ if ($InstallDependencies) {
 		throw "Unable to find a PSRepository with the name '$GalleryRepository'"
 	}
 
-    # Save Modules
-    $requiredModules.GetEnumerator() | ForEach-Object {
+	# Save Modules
+	$requiredModules.GetEnumerator() | ForEach-Object {
 
-        Write-Verbose "Found '$($_.Key)' with a value of '$($_.Value)'"
+		Write-Verbose "Found '$($_.Key)' with a value of '$($_.Value)'"
 
-        $galleryParams = @{
-            Name        = $_.Key
-            Force       = $true
-            Path        = $prjBuildDependenciesPath
-            ErrorAction = 'Stop'
-        }
+		$galleryParams = @{
+			Name        = $_.Key
+			Force       = $true
+			Path        = $prjBuildDependenciesPath
+			ErrorAction = 'Stop'
+		}
 
-        if ($_.Value -ne 'Latest') { $gallaryParams.Add('RequiredVersion', $_.Value) }
+		if ($_.Value -ne 'Latest') { $gallaryParams.Add('RequiredVersion', $_.Value) }
 
-        Save-Module @galleryParams
+		Save-Module @galleryParams
 
-    }
+	}
 
 	# If Gallery was orginally Untrusted set back.
 	if ($gallery -and $gallery.InstallationPolicy -eq "Untrusted") {
@@ -127,7 +128,7 @@ if ($InstallDependencies) {
 	}
 
 	# Restore DotNet Tools Restore
-	if(Test-Path $prjDotNetConfigPath){dotnet tool restore}
+	if (Test-Path $prjDotNetConfigPath) { dotnet tool restore }
 
 }
 
@@ -144,14 +145,14 @@ if ($Task) {
 	# Invoke Build Tasks
 	Invoke-Build -Result 'Result' -File $prjBuildTaskPath -Task $Task
 
-    # Return error to CI
-    if ($Result.Error) {
+	# Return error to CI
+	if ($Result.Error) {
 
-        $Error[-1].ScriptStackTrace | Out-String
-        exit 1
+		$Error[-1].ScriptStackTrace | Out-String
+		exit 1
 
-    }
+	}
 
-    exit 0
+	exit 0
 
 }
