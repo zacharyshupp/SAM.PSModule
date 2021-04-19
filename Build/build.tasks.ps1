@@ -158,7 +158,7 @@ Add-BuildTask SetEnvironment {
 
 }
 
-# Synopsis: Sets the PreRelease value
+# Synopsis: Sets the PreRelease value in the PowerShell Module
 Add-BuildTask SetPreReleaseFlag {
 
     $gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
