@@ -14,7 +14,7 @@ on:
       - main
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  #workflow_dispatch:
 
 jobs:
   build:
@@ -86,6 +86,15 @@ jobs:
         with:
           name: PSModule
           path: BuildOutput/${{ github.event.repository.name }}
+      - name: Update Module Manifest PreRelease
+        shell: pwsh
+        run: |
+          .\build.ps1 -Task SetPreReleaseFlag
+      - name: Publish Module to PowerShell Gallery
+        shell: pwsh
+        run: |
+          if (-not '${{ secrets.PS_GALLERY_KEY }}') {throw 'You need to configure a PS_GALLERY_KEY secret for this environment with your Powershell Gallery API Key'}
+          Publish-Module -Verbose -Name $PWD/BuildOutput/${{ github.event.repository.name }} -NugetApiKey ${{ secrets.PS_GALLERY_KEY }}
 
   deploy:
     name: Deploy Module
@@ -100,3 +109,8 @@ jobs:
         with:
           name: PSModule
           path: BuildOutput/${{ github.event.repository.name }}
+      - name: Publish Module to PowerShell Gallery
+        shell: pwsh
+        run: |
+          if (-not '${{ secrets.PS_GALLERY_KEY }}') {throw 'You need to configure a PS_GALLERY_KEY secret for this environment with your Powershell Gallery API Key'}
+          Publish-Module -Verbose -Name $PWD/BuildOutput/${{ github.event.repository.name }} -NugetApiKey ${{ secrets.PS_GALLERY_KEY }}
