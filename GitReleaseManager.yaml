@@ -6,17 +6,17 @@ create:
     You can download this release from:
 
     [PowerShell Gallery](https://www.powershellgallery.com/packages/sam.psmodule/{milestone})
-  footer-includes-milestone: false
+  footer-includes-milestone: true
   milestone-replace-text: '{milestone}'
-  include-sha-section: false
+  include-sha-section: true
   sha-section-heading: SHA256 Hashes of the release artifacts
   sha-section-line-format: '- `{1}	{0}`'
 
 ## Configuration values used when closing a milestone
 close:
-  use-issue-comments: false
+  use-issue-comments: true
   issue-comment: |-
-    :tada: This issue has been resolved in version {milestone} :tada:
+    This issue has been resolved in version {milestone} :star2:
 
     The release is available on:
 
@@ -29,6 +29,7 @@ close:
 issue-labels-include:
 - Bug
 - Enhancement
+- Documentation
 - Feature
 - Improvement
 - WontFix
