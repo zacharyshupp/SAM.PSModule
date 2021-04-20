@@ -6,9 +6,9 @@ on:
       - main
     tags:
       - "*"
-  release:
-    types:
-      - published
+  #release:
+  #  types:
+  #    - published
   pull_request:
     branches:
       - main
