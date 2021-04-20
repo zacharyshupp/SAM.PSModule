@@ -25,26 +25,11 @@ function Get-SAMFunction {
 	#>
 
 	[CmdletBinding()]
-	param (
-
-		# Specify the String to Echo
-		[Parameter(Mandatory)]
-		[String]
-		$Text
-
-	)
-
-	begin {
-
-	}
-
-	process {
-
-	}
+	param ()
 
 	end {
 
-		Write-Output $(Set-TextTest -Text $Text)
+		Write-Output "This is a Guid: $((New-Guid).Guid) "
 
 	}
 
