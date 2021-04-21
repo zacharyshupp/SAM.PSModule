@@ -76,6 +76,7 @@ $prjDotNetPath = Join-Path -Path $PSScriptRoot -ChildPath ".config"
 
 # Project Files
 $prjBuildTaskPath = Join-Path -Path $prjBuildPath -ChildPath "build.tasks.ps1"
+$prjBuildFunctionsPath = Join-Path -Path $prjBuildPath -ChildPath "build.functions.ps1"
 $prjTestResultPath = Join-Path -Path $prjBuildOutputPath -ChildPath "TestResults.xml"
 $prjCodeCoveragePath = Join-Path -Path $prjBuildOutputPath -ChildPath "CodeCoverage.xml"
 $prjDotNetConfigPath = Join-Path -Path $prjDotNetPath -ChildPath "dotnet-tools.json"

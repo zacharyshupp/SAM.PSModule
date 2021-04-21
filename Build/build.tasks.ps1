@@ -1,21 +1,25 @@
 # [InvokeBuild Configuration] -------------------------------------------------------------------------------------
 
 Set-BuildHeader {
-	param($Path)
-	Write-Build Green ('=' * 79)
-	Write-Build Green "Task $Path : $(Get-BuildSynopsis $Task)"
-	Write-Build Yellow "At $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+    param($Path)
+    Write-Build Green ('=' * 79)
+    Write-Build Green "Task $Path : $(Get-BuildSynopsis $Task)"
+    Write-Build Yellow "At $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
 }
 
 # Define footers similar to default but change the color to DarkGray.
 Set-BuildFooter {
-	param($Path)
+    param($Path)
     Write-Build Green ('-' * 79)
-	Write-Build DarkGray "Done $Path, $($Task.Elapsed)"
+    Write-Build DarkGray "Done $Path, $($Task.Elapsed)"
 }
 
 # Synopsis: Runs before any task
-Enter-Build { "$($moduleParams.ModuleName) Build" }
+Enter-Build {
+    "$($moduleParams.ModuleName) Build"
+    Write-Build Yellow "Importing Build Support Functions"
+    . $prjBuildFunctionsPath
+}
 
 # [Tasks] ---------------------------------------------------------------------------------------------------------
 
@@ -25,11 +29,11 @@ Add-BuildTask Build Clean, BuildModule
 # Synopsis: Build PowerShell Module
 Add-BuildTask BuildModule {
 
-	$prjSrcPublicFunctionsPath = Join-Path -Path $prjSourcePath -ChildPath "Public"
-	$prjSrcPrivateFunctionsPath = Join-Path -Path $prjSourcePath -ChildPath "Private"
+    $prjSrcPublicFunctionsPath = Join-Path -Path $prjSourcePath -ChildPath "Public"
+    $prjSrcPrivateFunctionsPath = Join-Path -Path $prjSourcePath -ChildPath "Private"
 
-	# Get Module Version from GitVersion
-	$gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
+    # Get Module Version from GitVersion
+    $gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
 
     # Create Module Buildoutput Directory
     New-Item -Path $mdlPath -ItemType Directory -Force | Out-Null
@@ -70,6 +74,17 @@ Add-BuildTask BuildModule {
 
     }
 
+    # Get Commit Messages
+    $commitMsgs = Get-CommitsSinceLastTag -Path "$prjRoot"
+
+    # Create Release Notes
+    if ($gitVersion.PreReleaseTag) {
+        $releaseNotes = $commitMsgs | New-ReleaseNotes -Version $gitversion.NuGetVersionV2
+    }
+    else {
+        $releaseNotes = $commitMsgs | New-ReleaseNotes -Version $gitversion.NuGetVersionV2 -Release
+    }
+
     # Create PSD1
     # Build PSD1 file with all the module Information
     $moduleManifestParams = @{
@@ -87,6 +102,9 @@ Add-BuildTask BuildModule {
         Tags              = $moduleParams.Tags
     }
 
+    if ($gitVersion.PreReleaseTag) { $moduleManifestParams.add('Prerelease', $gitVersion.NuGetPreReleaseTagV2)}
+    if ($releaseNotes) { $moduleManifestParams.add('ReleaseNotes', $releaseNotes)}
+
     # Copy Formats
     if ($moduleParams.FormatsToProcess) {
         # TODO: Add a way to copy multiple in order.
@@ -99,7 +117,7 @@ Add-BuildTask BuildModule {
 # Synopsis: Clean up the target build directory
 Add-BuildTask Clean {
 
-	if ($(Test-Path -Path $prjBuildOutputPath) -eq $true) { Remove-Item –Path $prjBuildOutputPath –Recurse -Force }
+    if ($(Test-Path -Path $prjBuildOutputPath) -eq $true) { Remove-Item –Path $prjBuildOutputPath –Recurse -Force }
 
 }
 
