@@ -26,17 +26,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Dependencies
+      - name: Install Dependencies and Set Environment
         shell: pwsh
         run: |
           dotnet tool install --global GitVersion.Tool
-          .\build.ps1 -InstallDependencies
-
-      - name: Set Environment Variables
-        id: SetEnvVariables
-        shell: pwsh
-        run: |
-          .\build.ps1 -Task SetEnvironment
+          .\build.ps1 -InstallDependencies -Task SetEnvironment
 
       - if: steps.debugStatus.outputs.stepDebug
         name: Environment Information
@@ -93,6 +87,12 @@ jobs:
           name: PSModule
           path: BuildOutput/${{ github.event.repository.name }}
 
+      - name: Install Dependencies and Set Environment
+        shell: pwsh
+        run: |
+          dotnet tool install --global GitVersion.Tool
+          .\build.ps1 -InstallDependencies -Task SetEnvironment
+
       - name: Test Powershell 7+
         id: pwsh7testing
         shell: pwsh
@@ -120,7 +120,6 @@ jobs:
         with:
           name: ${{ steps.SetEnvVariables.pwsh5testing.pesterfile }}
           path: ${{ steps.SetEnvVariables.pwsh5testing.pesterResults }}
-
     if: ${{ always() }}
 
   deployPrerelease:
