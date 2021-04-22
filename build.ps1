@@ -48,9 +48,9 @@ if ($PSEdition -eq 'Desktop') {
 # [Declarations] --------------------------------------------------------------------------------------------------
 
 $requiredModules = @{
-	Pester              = 'Latest'
-	InvokeBuild         = 'Latest'
-	PowershellForGithub = 'Latest'
+	Pester       = 'Latest'
+	InvokeBuild  = 'Latest'
+	BuildHelpers = 'Latest'
 }
 
 $moduleParams = @{
@@ -66,19 +66,17 @@ $moduleParams = @{
 
 # Project Directories
 $prjRoot = $PSScriptRoot
-$prjBuildPath = Join-Path -Path $PSScriptRoot -ChildPath "Build"
-$prjBuildOutputPath = Join-Path -Path $PSScriptRoot -ChildPath "BuildOutput"
-$prjBuildDependenciesPath = Join-Path -Path $PSScriptRoot -ChildPath "BuildDependencies"
-$prjDocsPath = Join-Path -Path $PSScriptRoot -ChildPath "Docs"
-$prjSourcePath = Join-Path -Path $PSScriptRoot -ChildPath $moduleParams.ModuleName
-$prjTestPath = Join-Path -Path $PSScriptRoot -ChildPath "Tests"
-$prjDotNetPath = Join-Path -Path $PSScriptRoot -ChildPath ".config"
+$prjBuildPath = Join-Path -Path $prjRoot -ChildPath "Build"
+$prjBuildOutputPath = Join-Path -Path $prjRoot -ChildPath "BuildOutput"
+$prjBuildDependenciesPath = Join-Path -Path $prjRoot -ChildPath "BuildDependencies"
+$prjDocsPath = Join-Path -Path $prjRoot -ChildPath "Docs"
+$prjSourcePath = Join-Path -Path $prjRoot -ChildPath $moduleParams.ModuleName
+$prjTestPath = Join-Path -Path $prjRoot -ChildPath "Tests"
+$prjDotNetPath = Join-Path -Path $prjRoot -ChildPath ".config"
 
 # Project Files
 $prjBuildTaskPath = Join-Path -Path $prjBuildPath -ChildPath "build.tasks.ps1"
 $prjBuildFunctionsPath = Join-Path -Path $prjBuildPath -ChildPath "build.functions.ps1"
-$prjTestResultPath = Join-Path -Path $prjBuildOutputPath -ChildPath "TestResults.xml"
-$prjCodeCoveragePath = Join-Path -Path $prjBuildOutputPath -ChildPath "CodeCoverage.xml"
 $prjDotNetConfigPath = Join-Path -Path $prjDotNetPath -ChildPath "dotnet-tools.json"
 
 # Module Build Variables

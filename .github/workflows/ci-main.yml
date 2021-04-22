@@ -66,6 +66,63 @@ jobs:
           name: PSModule
           path: ${{ steps.SetEnvVariables.outputs.prjModulePath }}
 
+  test:
+    name: Pester Tests
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-20.04
+          - ubuntu-18.04
+          - ubuntu-16.04
+          - windows-latest
+          - windows-2019
+          - windows-2016
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Restore Built Powershell Module
+        uses: actions/download-artifact@v2
+        with:
+          name: PSModule
+          path: BuildOutput/${{ github.event.repository.name }}
+
+      - name: Test Powershell 7+
+        id: pwsh7testing
+        shell: pwsh
+        run: |
+          if ('${{secrets.ACTIONS_STEP_DEBUG}}') {$verbosePreference = 'continue'}
+          .\build.ps1 -Task Test
+
+      - name: Capture PowerShell 7 Pester Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.SetEnvVariables.pwsh7testing.pesterfile }}
+          path: ${{ steps.SetEnvVariables.pwsh7testing.pesterResults }}
+
+      - if: runner.os == 'Windows'
+        name: Test Windows Powershell 5.1
+        id: pwsh5testing
+        shell: powershell
+        run: |
+          if ('${{secrets.ACTIONS_STEP_DEBUG}}') {$verbosePreference = 'continue'}
+          .\build.ps1 -Task Test
+
+      - if: runner.os == 'Windows'
+        name: Capture PowerShell 5 Pester Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.SetEnvVariables.pwsh5testing.pesterfile }}
+          path: ${{ steps.SetEnvVariables.pwsh5testing.pesterResults }}
+
+    if: ${{ always() }}
+
   deployPrerelease:
     name: Deploy PreRelease Module
     if: github.ref == 'refs/heads/main'
