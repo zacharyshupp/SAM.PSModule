@@ -2,9 +2,12 @@
 
 Set-BuildHeader {
     param($Path)
+
+    Write-Build Green ""
     Write-Build Green ('=' * 79)
     Write-Build Green "Task $Path : $(Get-BuildSynopsis $Task)"
-    Write-Build Yellow "At $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+    #Write-Build Yellow "At $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+
 }
 
 # Define footers similar to default but change the color to DarkGray.
@@ -24,7 +27,10 @@ Enter-Build {
 # [Tasks] ---------------------------------------------------------------------------------------------------------
 
 # Synopsis: Alias Task for Build
-Add-BuildTask Build Clean, BuildModule
+Add-BuildTask Build Clean, SetEnvironment, BuildModule
+
+# Synopsis: Alias Task for Test
+Add-BuildTask Test SetEnvironment, TestModule
 
 # Synopsis: Build PowerShell Module
 Add-BuildTask BuildModule {
@@ -102,8 +108,8 @@ Add-BuildTask BuildModule {
         Tags              = $moduleParams.Tags
     }
 
-    if ($gitVersion.PreReleaseTag) { $moduleManifestParams.add('Prerelease', $gitVersion.NuGetPreReleaseTagV2)}
-    if ($releaseNotes) { $moduleManifestParams.add('ReleaseNotes', $releaseNotes)}
+    if ($gitVersion.PreReleaseTag) { $moduleManifestParams.add('Prerelease', $gitVersion.NuGetPreReleaseTagV2) }
+    if ($releaseNotes) { $moduleManifestParams.add('ReleaseNotes', $releaseNotes) }
 
     # Copy Formats
     if ($moduleParams.FormatsToProcess) {
@@ -157,6 +163,9 @@ Add-BuildTask SetEnvironment {
 
     }
 
+    Set-BuildEnvironment -Path $prjRoot -VariableNamePrefix "SAM" -Force
+    Get-BuildEnvironment -Path $prjRoot
+
     if ($ENV:GITHUB_ACTIONS) {
 
         # Git Version Variables
@@ -176,11 +185,49 @@ Add-BuildTask SetEnvironment {
 
 }
 
-# Synopsis: Sets the PreRelease value in the PowerShell Module
-Add-BuildTask SetPreReleaseFlag {
+# Synopsis: Run Pester Tests
+Add-BuildTask TestModule {
 
-    $gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
+    $testResultsName = "TestResults-{0}-{1}-{2}.xml" -f $PSVersionTable.OS, $PSVersionTable.PSEdition, $PSVersionTable.PSVersion
+    $prjTestResultPath = Join-Path -Path $prjBuildOutputPath -ChildPath $testResultsName
 
-    Update-ModuleManifest -Path $mdlPSD1Path -Prerelease $gitVersion.NuGetPreReleaseTagV2
+    # Remove Any Pester Modules that are loaded
+    Get-Module -Name Pester | Remove-Module -Force
+
+    # Import Pester Module
+    $pesterModulePath = Join-Path -Path $prjBuildDependenciesPath -ChildPath "Pester"
+
+    if (Test-Path -Path $pesterModulePath) {
+
+        Import-Module $pesterModulePath -Force
+
+        # Configure Pester
+        $configuration = [PesterConfiguration]::Default
+
+        $configuration.Run.Path = $prjTestPath
+        $configuration.Run.Exit = $true
+
+        $configuration.TestResult.Enabled = $true
+        $configuration.TestResult.OutputPath = $prjTestResultPath
+
+        $configuration.output.Verbosity = 'Detailed'
+
+        $r = Invoke-Pester -Configuration $configuration
+
+        if ($ENV:GITHUB_ACTIONS) {
+
+            "::set-output name=pesterfile::$testResultsName"
+            "::set-output name=pesterResults::$prjTestResultPath"
+        }
+
+        if ("Failed" -eq $r.Result) { throw "Run failed!" }
+
+        ""
+    }
+    else {
+
+        Write-Warning -Message "Missing Pester Module - Call Build.ps1 -InstallDependencies so save the module"
+
+    }
 
 }
