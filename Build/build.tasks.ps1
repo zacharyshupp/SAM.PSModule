@@ -187,17 +187,17 @@ Add-BuildTask SetEnvironment {
 Add-BuildTask TestModule {
 
     if ($ENV:GITHUB_ACTIONS) {
-
         $testResultsName = "TestResults-{0}-{1}-{2}.xml" -f $ENV:ImageOS, $PSVersionTable.PSEdition, $PSVersionTable.PSVersion
-
-        "::set-output name=pesterfile::$testResultsName"
-        "::set-output name=pesterResults::$prjTestResultPath"
-
     }else{
         $testResultsName = "TestResults-{0}-{1}-{2}.xml" -f $PSVersionTable.OS, $PSVersionTable.PSEdition, $PSVersionTable.PSVersion
     }
 
     $prjTestResultPath = Join-Path -Path $prjBuildOutputPath -ChildPath $testResultsName
+
+    if ($ENV:GITHUB_ACTIONS) {
+        "::set-output name=pesterfile::$testResultsName"
+        "::set-output name=pesterResults::$prjTestResultPath"
+    }
 
     # Remove Any Pester Modules that are loaded
     Get-Module -Name Pester | Remove-Module -Force
