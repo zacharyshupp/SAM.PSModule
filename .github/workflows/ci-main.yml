@@ -27,6 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Dependencies and Set Environment
+        id: SetEnvVariables
         shell: pwsh
         run: |
           dotnet tool install --global GitVersion.Tool
@@ -88,6 +89,7 @@ jobs:
           path: BuildOutput/${{ github.event.repository.name }}
 
       - name: Install Dependencies and Set Environment
+        id: SetEnvVariables
         shell: pwsh
         run: |
           dotnet tool install --global GitVersion.Tool
