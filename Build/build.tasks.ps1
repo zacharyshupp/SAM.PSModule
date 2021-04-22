@@ -179,8 +179,6 @@ Add-BuildTask SetEnvironment {
         # Module Variables
         "::set-output name=prjModulePath::$mdlPath"
         "::set-output name=prjBuildOutput::$prjBuildOutputPath"
-        "::set-output name=prjTestResultPath::$prjTestResultPath"
-        "::set-output name=prjCodeCoveragePath::$prjCodeCoveragePath"
     }
 
 }
@@ -190,6 +188,11 @@ Add-BuildTask TestModule {
 
     $testResultsName = "TestResults-{0}-{1}-{2}.xml" -f $PSVersionTable.OS, $PSVersionTable.PSEdition, $PSVersionTable.PSVersion
     $prjTestResultPath = Join-Path -Path $prjBuildOutputPath -ChildPath $testResultsName
+
+    if ($ENV:GITHUB_ACTIONS) {
+        "::set-output name=pesterfile::$testResultsName"
+        "::set-output name=pesterResults::$prjTestResultPath"
+    }
 
     # Remove Any Pester Modules that are loaded
     Get-Module -Name Pester | Remove-Module -Force
@@ -213,12 +216,6 @@ Add-BuildTask TestModule {
         $configuration.output.Verbosity = 'Detailed'
 
         $r = Invoke-Pester -Configuration $configuration
-
-        if ($ENV:GITHUB_ACTIONS) {
-
-            "::set-output name=pesterfile::$testResultsName"
-            "::set-output name=pesterResults::$prjTestResultPath"
-        }
 
         if ("Failed" -eq $r.Result) { throw "Run failed!" }
 

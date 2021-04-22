@@ -98,8 +98,8 @@ jobs:
       - name: Capture PowerShell 7 Pester Results
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.SetEnvVariables.pwsh7testing.pesterfile }}
-          path: ${{ steps.SetEnvVariables.pwsh7testing.pesterResults }}
+          name: ${{ steps.pwsh7testing.outputs.pesterfile }}
+          path: ${{ steps.pwsh7testing.outputs.pesterResults }}
 
       - if: runner.os == 'Windows'
         name: Test Windows Powershell 5.1
@@ -113,8 +113,8 @@ jobs:
         name: Capture PowerShell 5 Pester Results
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.SetEnvVariables.pwsh5testing.pesterfile }}
-          path: ${{ steps.SetEnvVariables.pwsh5testing.pesterResults }}
+          name: ${{ steps.pwsh5testing.outputs.pesterfile }}
+          path: ${{ steps.pwsh5testing.outputs.pesterResults }}
     if: ${{ always() }}
 
   deployPrerelease:
