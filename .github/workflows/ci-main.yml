@@ -30,7 +30,6 @@ jobs:
         id: SetEnvVariables
         shell: pwsh
         run: |
-          dotnet tool install --global GitVersion.Tool
           .\build.ps1 -InstallDependencies -Task SetEnvironment
 
       - if: steps.debugStatus.outputs.stepDebug
@@ -66,16 +65,11 @@ jobs:
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      #fail-fast: true
       matrix:
         os:
           - ubuntu-latest
-          - ubuntu-20.04
-          - ubuntu-18.04
-          - ubuntu-16.04
           - windows-latest
-          - windows-2019
-          - windows-2016
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -92,7 +86,6 @@ jobs:
         id: SetEnvVariables
         shell: pwsh
         run: |
-          dotnet tool install --global GitVersion.Tool
           .\build.ps1 -InstallDependencies -Task SetEnvironment
 
       - name: Test Powershell 7+
