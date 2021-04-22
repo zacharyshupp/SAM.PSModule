@@ -65,7 +65,7 @@ jobs:
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
-      #fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -87,6 +87,14 @@ jobs:
         shell: pwsh
         run: |
           .\build.ps1 -InstallDependencies -Task SetEnvironment
+
+      - if: steps.debugStatus.outputs.stepDebug
+        name: Environment Information
+        shell: pwsh
+        run: |
+          "::group::Powershell Version"
+          $PSVersionTable | Select *
+          "::endgroup"
 
       - name: Test Powershell 7+
         id: pwsh7testing
