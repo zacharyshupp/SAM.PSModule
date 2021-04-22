@@ -130,6 +130,7 @@ jobs:
     environment: PreRelease
     needs:
       - build
+      - Test
     steps:
       - name: Restore Built Powershell Module
         uses: actions/download-artifact@v2
@@ -150,6 +151,7 @@ jobs:
     environment: Release
     needs:
       - build
+      - test
     steps:
       - name: Restore Built Powershell Module
         uses: actions/download-artifact@v2
