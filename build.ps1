@@ -48,9 +48,10 @@ if ($PSEdition -eq 'Desktop') {
 # [Declarations] --------------------------------------------------------------------------------------------------
 
 $requiredModules = @{
-	Pester       = 'Latest'
-	InvokeBuild  = 'Latest'
-	BuildHelpers = 'Latest'
+	Pester           = 'Latest'
+	InvokeBuild      = 'Latest'
+	BuildHelpers     = 'Latest'
+	PSScriptAnalyzer = 'Latest'
 }
 
 $moduleParams = @{
