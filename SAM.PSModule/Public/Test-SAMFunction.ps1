@@ -19,31 +19,31 @@ function Test-SAMFunction {
 
 		.NOTES
 			General notes
-		
+
 		.LINK
 			HTTPS://WWW.GOOGLE.COM
 	#>
 
 	[CmdletBinding()]
 	param (
-	
+
 		# Specify the String to Echo
-		[Parameter(Mandatory)]	
+		[Parameter(Mandatory)]
 		[String]
 		$Text
-	
+
 	)
-	
+
 	begin {
-		
+
 	}
-	
+
 	process {
-		
+
 	}
-	
+
 	end {
-		
+
 		Write-Output $(Set-TextTest -Text $Text)
 
 	}

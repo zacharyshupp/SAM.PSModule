@@ -15,9 +15,9 @@
     "powershell.codeFormatting.useCorrectCasing": true,
     "powershell.codeFolding.showLastLine": false,
     "powershell.integratedConsole.forceClearScrollbackBuffer": true,
-    "powershell.scriptAnalysis.settingsPath": ".build\\analyzersettings.psd1",
+    "powershell.scriptAnalysis.settingsPath": "./Build/PSScriptAnalyzerSettings.psd1",
     "powershell.scriptAnalysis.enable": true,
-    "powershell.developer.bundledModulesPath": "${cwd}/Dependencies",
+    "powershell.developer.bundledModulesPath": "${cwd}/BuildDependencies",
     "powershell.pester.useLegacyCodeLens": false,
 
     //todo-tree
@@ -29,19 +29,10 @@
     ],
     "powershell.pester.debugOutputVerbosity": "Minimal",
     "powershell.pester.outputVerbosity": "Diagnostic",
-    "cSpell.words": [
-        "disa",
-        "management",
-        "stig",
-        "stigs"
-    ],
+    "cSpell.words": [],
     "vsicons.associations.folders": [
-        { "icon": "bloc", "extensions": ["SAM.STIGManagement.Checks"], "format": "svg"},
-        { "icon": "helper", "extensions": ["Support"], "format": "svg", "overrides": "Support" },
-        { "icon": "dist", "extensions": ["Output"], "format": "svg"},
-        { "icon": "template", "extensions": ["Dependencies",".Build"], "format": "svg"},
-        { "icon": "plugin", "extensions": ["Adobe_Acrobat_Reader_DC_Continuous_Track_STIG"], "format": "svg"},
-        { "icon": "src", "extensions": ["SAM.STIGManagement"], "format": "svg"}
+        { "icon": "dist", "extensions": ["BuildOutput"], "format": "svg"},
+        { "icon": "template", "extensions": ["BuildDependencies"], "format": "svg"},
     ]
 
 }
