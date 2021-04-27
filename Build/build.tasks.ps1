@@ -188,7 +188,8 @@ Add-BuildTask TestModule {
 
     if ($ENV:GITHUB_ACTIONS) {
         $testResultsName = "TestResults-{0}-{1}-{2}.xml" -f $ENV:ImageOS, $PSVersionTable.PSEdition, $PSVersionTable.PSVersion
-    }else{
+    }
+    else {
         $testResultsName = "TestResults-{0}-{1}-{2}.xml" -f $PSVersionTable.OS, $PSVersionTable.PSEdition, $PSVersionTable.PSVersion
     }
 
@@ -231,5 +232,40 @@ Add-BuildTask TestModule {
         Write-Warning -Message "Missing Pester Module - Call Build.ps1 -InstallDependencies so save the module"
 
     }
+
+}
+
+# Synopsis: Generate Markdown Module Help
+Add-BuildTask GenerateMarkdownHelp build, {
+
+    # Import PlatyPS Module
+    if (!(Get-Module -Name "PlatyPS")) {
+        $platyModulePath = Join-Path -Path $prjBuildDependenciesPath -ChildPath "PlatyPS"
+        Import-Module $platyModulePath -Global -ErrorAction Stop
+    }
+
+    # Get Module Version from GitVersion
+    $gitVersion = dotnet dotnet-gitversion | ConvertFrom-Json
+
+    # Check if module is already loaded and remove it
+    Get-Module $moduleParams.ModuleName | Remove-Module -Force
+
+    # Import Source Module
+    Import-Module $mdlPath -Force
+
+    if(!(Test-Path -Path $prjDocsModulePath)){
+        New-Item -Path $prjDocsModulePath -ItemType Directory | Out-Null
+    }
+
+    # Generate Markdown
+    $platyPSParams = @{
+        Module                = $moduleParams.ModuleName
+        Locale                = "en-US"
+        OutputFolder          = $prjDocsModulePath
+        AlphabeticParamsOrder = $true
+        Force                 = $true
+    }
+
+    New-MarkdownHelp @platyPSParams
 
 }

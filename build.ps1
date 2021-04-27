@@ -32,7 +32,12 @@ param (
 	# Specifies the Tasks to run.
 	[Parameter()]
 	[string[]]
-	$Task
+	$Task,
+
+	# Specify if a task should override an item.
+	[Parameter()]
+	[Switch]
+	$Force
 
 )
 
@@ -52,6 +57,7 @@ $requiredModules = @{
 	InvokeBuild      = 'Latest'
 	BuildHelpers     = 'Latest'
 	PSScriptAnalyzer = 'Latest'
+	PlatyPS          = 'Latest'
 }
 
 $moduleParams = @{
@@ -71,6 +77,7 @@ $prjBuildPath = Join-Path -Path $prjRoot -ChildPath "Build"
 $prjBuildOutputPath = Join-Path -Path $prjRoot -ChildPath "BuildOutput"
 $prjBuildDependenciesPath = Join-Path -Path $prjRoot -ChildPath "BuildDependencies"
 $prjDocsPath = Join-Path -Path $prjRoot -ChildPath "Docs"
+$prjDocsModulePath = Join-Path -Path $prjDocsPath -ChildPath "ModuleHelp"
 $prjSourcePath = Join-Path -Path $prjRoot -ChildPath $moduleParams.ModuleName
 $prjTestPath = Join-Path -Path $prjRoot -ChildPath "Tests"
 $prjDotNetPath = Join-Path -Path $prjRoot -ChildPath ".config"
@@ -79,6 +86,7 @@ $prjDotNetPath = Join-Path -Path $prjRoot -ChildPath ".config"
 $prjBuildTaskPath = Join-Path -Path $prjBuildPath -ChildPath "build.tasks.ps1"
 $prjBuildFunctionsPath = Join-Path -Path $prjBuildPath -ChildPath "build.functions.ps1"
 $prjDotNetConfigPath = Join-Path -Path $prjDotNetPath -ChildPath "dotnet-tools.json"
+$prjModuleMarkdownPath = Join-Path -Path $prjDocsPath -ChildPath "$($moduleParams.ModuleName)`.md"
 
 # Module Build Variables
 $mdlPath = Join-Path -Path $prjBuildOutputPath -ChildPath $moduleParams.ModuleName
