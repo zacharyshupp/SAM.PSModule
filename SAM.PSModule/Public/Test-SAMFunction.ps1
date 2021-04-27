@@ -8,8 +8,9 @@ function Test-SAMFunction {
 			Long description
 
 		.EXAMPLE
-			PS C:\> <example usage>
-			Explanation of what the example does
+			PS C:\> Test-SAMFunction -Text "This is a test"
+
+			This example shows how to call the functions
 
 		.INPUTS
 			Inputs (if any)
